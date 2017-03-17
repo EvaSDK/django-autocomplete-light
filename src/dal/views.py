@@ -5,6 +5,7 @@ import json
 from django import http
 from django.contrib.auth import get_permission_codename
 from django.core.exceptions import ImproperlyConfigured
+from django.http import HttpResponseBadRequest
 from django.utils import six
 from django.views.generic.list import BaseListView
 
@@ -25,9 +26,16 @@ class ViewMixin(object):
 
     def dispatch(self, request, *args, **kwargs):
         """Set :py:attr:`forwarded` and :py:attr:`q`."""
-        self.forwarded = json.loads(request.GET.get('forward', '{}'))
-        if request.method == 'POST':
-            self.forwarded = json.loads(request.POST.get('forward', '{}'))
+        try:
+            self.forwarded = json.loads(request.GET.get('forward', '{}'))
+            if request.method == 'POST':
+                self.forwarded = json.loads(request.POST.get('forward', '{}'))
+
+            if not isinstance(self.forwarded, dict):
+                raise ValueError
+        except ValueError:
+            return HttpResponseBadRequest('Invalid JSON data')
+
         self.q = request.GET.get('q', '')
         return super(ViewMixin, self).dispatch(request, *args, **kwargs)
 
