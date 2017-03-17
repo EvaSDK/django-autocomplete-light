@@ -1,3 +1,8 @@
+3.2.1.post1
+
+    #813: Return 400 on invalid JSON input
+    #815: Simplify customization of autocomplete views
+
 3.2.1
 
     #737: TaggitSelect2: insure there's a comma when there's only one tag, or
